@@ -18,15 +18,12 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private var myService: MyService? = null
-    private var isStart: Boolean = false
     private var isBind: Boolean = false
-    private var exTraTime = 0L
     private lateinit var startButton: Button
     private lateinit var stopButton: Button
     private lateinit var resetButton: Button
     private lateinit var timeTextView: TextView
     private lateinit var serviceIntent: Intent
-    private lateinit var handler: Handler
 
 
     val TAG = MainActivity::class.java.simpleName
@@ -57,8 +54,6 @@ class MainActivity : AppCompatActivity() {
         stopButton.setOnClickListener {
             if (isBind) {
                 unbindService(connection)
-                stopService(serviceIntent)
-                myService = null
                 Toast.makeText(this, "StopService", Toast.LENGTH_SHORT).show()
                 isBind = false
             }
