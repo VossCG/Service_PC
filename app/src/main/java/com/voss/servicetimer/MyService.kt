@@ -6,29 +6,40 @@ import android.content.ServiceConnection
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import androidx.lifecycle.ViewModelProvider
+import com.voss.servicetimer.databinding.ActivityMainBinding
 import java.util.*
 
 class MyService : Service() {
     private val binder = MyBinder()
-    private val timer by lazy { Timer() }
+    val timer by lazy { Timer() }
     var second: Long = 0L
     private val timerTask by lazy { TimeTask() }
+    override fun onCreate() {
+        if (second == 0L) {
+            second = getSharedPreferences("timeData", MODE_PRIVATE)
+                .getLong("second", 0)
+        }
+        Log.d(TAG, "OnCreat Second:$second")
+        super.onCreate()
+    }
 
     inner class MyBinder : Binder() {
         fun getService() = this@MyService
     }
 
-    inner class TimeTask : TimerTask() {
+    inner class TimeTask() : TimerTask() {
         override fun run() {
             second++
+
             Log.d(TAG, "Second:$second")
         }
     }
 
-    override fun unbindService(conn: ServiceConnection) {
-        timer.cancel()
-        Log.d(TAG, "Service UnBind $conn")
-        super.unbindService(conn)
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        Log.d(TAG, "Service UnBind")
+        return super.onUnbind(intent)
     }
 
     val TAG = MainActivity::class.java.simpleName
@@ -39,7 +50,7 @@ class MyService : Service() {
     }
 
     fun runTimes() {
-            timer.scheduleAtFixedRate(timerTask, 0, 1000)
+        timer.scheduleAtFixedRate(timerTask, 0, 1000)
     }
 
     override fun onDestroy() {
